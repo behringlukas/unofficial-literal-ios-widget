@@ -1,83 +1,53 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: teal; icon-glyph: magic;
-//get parameters from input via edit widget
-let params = null;
+
+let params = null; //parameters from input via edit widget
+let fm = FileManager.iCloud(); //fileManager to make widget work offline
+let persistFolder = "literalWidgetCache"; //foldername to save cached data
+let coverUrl = ""; //URL for the cover
+let img; //image for placeholder
+let titleText; //book title
+let authorText; //author name
+
+//creating widget
+const widget = new ListWidget();
+
+//check input parameters or use placeholder user
 if (args.widgetParameter != null) {
   params = args.widgetParameter.split(",");
 } else {
   params = ["piet", "light"];
 }
-console.log(params);
-
-//creating widget
-const widget = new ListWidget();
-
-//fileManager to make widget work offline
-let fm = FileManager.iCloud();
-let persistFolder = "literalWidgetCache";
 
 //get data(title,author,cover) from api
 const userInformation = await userData(params[0]);
 const result = await getData(userInformation);
-let coverUrl = "";
 try {
-  console.log("1");
   coverUrl = result.data.booksByReadingStateAndProfile[0]["cover"];
-  console.log(coverUrl);
 } catch (e) {}
 
-function showError() {
-  const noBook = widget.addText("You're not reading anything");
-  noBook.font = Font.systemFont(12);
-  widget.addSpacer();
-  noBook.centerAlignText();
-  if (params[1] === "dark") {
-    widget.backgroundColor = Color.black();
-    noBook.textColor = Color.white();
-  } else {
-    widget.backgroundColor = Color.white();
-    noBook.textColor = Color.black();
-  }
-}
-//get literal logo as placeholder in case a book has no cover
-let img;
-
+//add cover of book if online, cached cover if offline or placeholder if no currently reading book
+//add it to widget
 try {
   img = await new Request(
     "https://pbs.twimg.com/profile_images/1371430883576717313/LyhsMxnf_400x400.jpg"
   ).loadImage();
   const coverRequest = new Request(coverUrl);
-  console.log("test" + coverUrl);
   const coverImg = await coverRequest.loadImage();
   writeDataToFile(params[0], userInformation, result, coverImg);
-  console.log(result);
-
-  //add cover to widget
   const cover = widget.addImage(coverImg);
   cover.centerAlignImage();
   widget.addSpacer();
 } catch (e) {
-  //add placeholder as cover to widget
-  console.log(e);
-  console.log(img);
   if (img !== undefined) {
     writeDataToFile(params[0], userInformation, result, img);
   }
-  console.log(e);
-  console.log(img);
-  //const coverPlaceholder = widget.addImage(img);
-  //coverPlaceholder.centerAlignImage();
-  //widget.addSpacer();
-  console.log(params[0]);
   const coverCache = loadImageFromFile(params[0]);
-  coverX = widget.addImage(coverCache);
-  coverX.centerAlignImage();
+  coverFromCache = widget.addImage(coverCache);
+  coverFromCache.centerAlignImage();
   widget.addSpacer();
 }
-
-let titleText;
-let authorText;
 
 //add title and author to widget
 try {
@@ -105,13 +75,15 @@ try {
     authorText.textColor = Color.black();
   }
 } catch (e) {
-  showError();
+  showMessage();
 }
 
+//write last retrieved data (also placeholder image) into iCloud file as cache
+//separate files for data and loaded png image
 function writeDataToFile(user, userInformation, result, coverImg) {
   let dir = fm.documentsDirectory();
-  var path = fm.joinPath(dir, persistFolder + "/");
-  var pathImage = fm.joinPath(dir, persistFolder + "/");
+  let path = fm.joinPath(dir, persistFolder + "/");
+  let pathImage = fm.joinPath(dir, persistFolder + "/");
   if (!fm.fileExists(path)) {
     fm.createDirectory(path, false);
   } else if (!fm.fileExists(pathImage)) {
@@ -123,6 +95,7 @@ function writeDataToFile(user, userInformation, result, coverImg) {
   fm.writeImage(pathImage, coverImg);
 }
 
+//load data from cache (iCloud folder)
 function loadDataFromFile(user) {
   let dir = fm.documentsDirectory();
   var path = fm.joinPath(dir, persistFolder + "/" + user + ".json");
@@ -134,6 +107,7 @@ function loadDataFromFile(user) {
   }
 }
 
+//load image from cache (iCloud folder)
 function loadImageFromFile(user) {
   let dir = fm.documentsDirectory();
   var pathImage = fm.joinPath(
@@ -145,6 +119,21 @@ function loadImageFromFile(user) {
   } else {
     var image = fm.readImage(pathImage);
     return image;
+  }
+}
+
+//show message if there is no currently reading book
+function showMessage() {
+  const noBook = widget.addText("You're not reading anything at the moment");
+  noBook.font = Font.systemFont(12);
+  widget.addSpacer();
+  noBook.centerAlignText();
+  if (params[1] === "dark") {
+    widget.backgroundColor = Color.black();
+    noBook.textColor = Color.white();
+  } else {
+    widget.backgroundColor = Color.white();
+    noBook.textColor = Color.black();
   }
 }
 
@@ -230,7 +219,6 @@ async function getData(profileId) {
     req.body = JSON.stringify(body);
     req.method = "post";
     const result = await req.loadJSON();
-    console.log(result);
     return result;
   } catch (e) {
     const dataFromFile = loadDataFromFile(params[0]);
