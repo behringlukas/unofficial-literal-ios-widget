@@ -15,7 +15,9 @@ const token = tokenResult.data.login["token"];
 const userId = tokenResult.data.login.profile["id"];
 
 //get data from api
-const result = await getData(userId, token);
+const book = await getCurrentlyReading(userId);
+const currentBook = book.data.booksByReadingStateAndProfile[0]["id"];
+const result = await getData(userId, currentBook, token);
 console.log(result);
 const coverUrl = result.data.booksByReadingStateAndProfile[0]["cover"];
 const coverRequest = new Request(coverUrl);
@@ -24,16 +26,20 @@ const currentPage = result.data.readingProgresses[0]["progress"]; //
 const progressPercentage = Math.round((currentPage / totalPages) * 100);
 const pagesLeft = totalPages - currentPage;
 
+const main = widget.addStack();
+const st1 = main.addStack();
+const st2 = main.addStack();
+
 //add content and set layout
 if (coverUrl !== "") {
   const coverImg = await coverRequest.loadImage();
-  const cover = widget.addImage(coverImg);
+  const cover = st1.addImage(coverImg);
   cover.centerAlignImage();
-  const coverPlaceholder = widget.addText(pagesLeft.toString() + " pages left");
+  const coverPlaceholder = st2.addText(pagesLeft.toString() + " pages left");
   coverPlaceholder.textColor = Color.black();
   widget.addSpacer();
 } else {
-  const coverPlaceholder = widget.addText(pagesLeft.toString() + " pages left");
+  const coverPlaceholder = st1.addText(pagesLeft.toString() + " pages left");
   coverPlaceholder.textColor = Color.black();
   widget.addSpacer();
 }
@@ -41,6 +47,7 @@ const title = widget.addText(
   result.data.booksByReadingStateAndProfile[0]["title"]
 );
 title.centerAlignText();
+0;
 const author = widget.addText(
   result.data.booksByReadingStateAndProfile[0].authors[0]["name"]
 );
@@ -98,8 +105,56 @@ async function getToken(email, password) {
   }
 }
 
+//get currently reading
+async function getCurrentlyReading(profileId) {
+  const api = "https://literal.club/graphql/";
+  const query = `query booksByReadingStateAndProfile(
+ 	$limit: Int!
+  	$offset: Int!
+   	$readingStatus: ReadingStatus!
+   	$profileId: String!) 
+	{
+        booksByReadingStateAndProfile(
+            limit: $limit,
+            offset: $offset,
+            readingStatus: $readingStatus,
+            profileId: $profileId)
+      	{
+    		id    
+			title
+        	cover
+        	authors{
+        		name 
+        	}
+	  	}
+    }`;
+
+  const body = {
+    query: query,
+    variables: {
+      limit: 1,
+      offset: 0,
+      profileId: `${profileId}`,
+      readingStatus: "IS_READING",
+    },
+  };
+
+  const headers = {
+    "content-type": "application/json",
+  };
+
+  try {
+    const req = new Request(api);
+    req.headers = headers;
+    req.body = JSON.stringify(body);
+    req.method = "post";
+    const result = await req.loadJSON();
+    return result;
+  } catch (e) {}
+}
+
 //api call
-async function getData(profileId, token) {
+async function getData(profileId, currentBook, token) {
   const api = "https://literal.club/graphql/";
   const query = `query booksByReadingStateAndProfile(
  	   $limit: Int!
@@ -137,7 +192,7 @@ async function getData(profileId, token) {
       offset: 0,
       profileId: `${profileId}`,
       readingStatus: "IS_READING",
-      bookIds: ["ckpq118h62629161givab162d3a"],
+      bookIds: `${[currentBook]}`,
     },
   };
 
