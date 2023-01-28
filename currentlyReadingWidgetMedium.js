@@ -31,13 +31,27 @@ try {
 } catch (e) {}
 
 const main = widget.addStack();
+main.setPadding(5, 5, 5, 5);
 main.layoutHorizontally();
-const stack = main.addStack();
-stack.layoutVertically();
-const stack1 = main.addStack();
-stack1.layoutVertically();
-const stack2 = main.addStack();
-stack2.layoutVertically();
+
+const stackB1 = main.addStack();
+const stackB2 = main.addStack();
+const stackB3 = main.addStack();
+
+stackB1.layoutVertically();
+stackB2.layoutVertically();
+stackB3.layoutVertically();
+
+const cov1 = stackB1.addStack();
+const cov2 = stackB2.addStack();
+const cov3 = stackB3.addStack();
+
+const tex1 = stackB1.addStack();
+tex1.layoutVertically();
+const tex2 = stackB2.addStack();
+tex2.layoutVertically();
+const tex3 = stackB3.addStack();
+tex3.layoutVertically();
 
 //add cover of book if online, cached cover if offline or placeholder if no currently reading book
 //add it to widget
@@ -59,13 +73,15 @@ try {
     coverImg1,
     coverImg2
   );
-  const cover = stack.addImage(coverImg);
-  const cover1 = stack1.addImage(coverImg1);
-  const cover2 = stack2.addImage(coverImg2);
-  cover.centerAlignImage();
-  cover1.centerAlignImage();
-  cover2.centerAlignImage();
-  widget.addSpacer();
+  cov1.addSpacer();
+  cov1.addImage(coverImg);
+  cov1.addSpacer();
+  cov2.addSpacer();
+  cov2.addImage(coverImg1);
+  cov2.addSpacer();
+  cov3.addSpacer();
+  cov3.addImage(coverImg2);
+  cov3.addSpacer();
 } catch (e) {
   if (img !== undefined) {
     writeDataToFile(params[0], userInformation, result, img);
@@ -73,33 +89,34 @@ try {
   const coverCache = loadImageFromFile(params[0]);
   coverFromCache = widget.addImage(coverCache);
   coverFromCache.centerAlignImage();
-  widget.addSpacer();
 }
 
 //add title and author to widget
 try {
+  tex1.addSpacer();
   const title = result.data.booksByReadingStateAndProfile[0]["title"];
+  tex1.addSpacer();
+  tex2.addSpacer();
   const title1 = result.data.booksByReadingStateAndProfile[1]["title"];
+  tex2.addSpacer();
+  tex3.addSpacer();
   const title2 = result.data.booksByReadingStateAndProfile[2]["title"];
+  tex3.addSpacer();
 
-  const titleText = stack.addText(title);
-  const titleText1 = stack1.addText(title1);
-  const titleText2 = stack2.addText(title2);
-
-  titleText.centerAlignText();
-  titleText1.centerAlignText();
-  titleText2.centerAlignText();
+  const titleText = tex1.addText(title);
+  const titleText1 = tex2.addText(title1);
+  const titleText2 = tex3.addText(title2);
 
   const author =
     result.data.booksByReadingStateAndProfile[0].authors[0]["name"];
   const author1 =
-    result.data.booksByReadingStateAndProfile[0].authors[1]["name"];
+    result.data.booksByReadingStateAndProfile[1].authors[0]["name"];
   const author2 =
-    result.data.booksByReadingStateAndProfile[0].authors[2]["name"];
+    result.data.booksByReadingStateAndProfile[2].authors[0]["name"];
 
-  const authorText = stack.addText(author);
-  const authorText1 = stack1.addText(author1);
-  const authorText2 = stack2.addText(author2);
+  const authorText = tex1.addText(author);
+  const authorText1 = tex2.addText(author1);
+  const authorText2 = tex3.addText(author2);
 
   authorText.centerAlignText();
   authorText1.centerAlignText();
@@ -152,8 +169,8 @@ function writeDataToFile(
   } else if (!fm.fileExists(pathImage)) {
     fm.createDirectory(pathImage, false);
   }
-  path += user + ".json";
-  pathImage += user + "Image" + ".json";
+  path += user + "medium" + ".json";
+  pathImage += user + "medium" + "Image" + ".json";
   fm.writeString(path, JSON.stringify([userInformation, result]));
   fm.writeImage(pathImage, coverImg, coverImg1, coverImg2);
 }
@@ -161,7 +178,7 @@ function writeDataToFile(
 //load data from cache (iCloud folder)
 function loadDataFromFile(user) {
   let dir = fm.documentsDirectory();
-  var path = fm.joinPath(dir, persistFolder + "/" + user + ".json");
+  var path = fm.joinPath(dir, persistFolder + "/" + user + "medium" + ".json");
   if (!fm.fileExists(path)) {
     console.log("No file found");
   } else {
@@ -175,7 +192,7 @@ function loadImageFromFile(user) {
   let dir = fm.documentsDirectory();
   var pathImage = fm.joinPath(
     dir,
-    persistFolder + "/" + user + "Image" + ".json"
+    persistFolder + "/" + user + "medium" + "Image" + ".json"
   );
   if (!fm.fileExists(pathImage)) {
     console.log("No file found");
