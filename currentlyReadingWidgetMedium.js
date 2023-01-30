@@ -9,6 +9,12 @@ let coverUrl = ""; //URL for the cover
 let img; //image for placeholder
 let titleText; //book title
 let authorText; //author name
+let coverImg;
+let coverImg1;
+let coverImg2;
+let coverRequest;
+let coverRequest1;
+let coverRequest2;
 
 //creating widget
 const widget = new ListWidget();
@@ -59,12 +65,12 @@ try {
   img = await new Request(
     "https://pbs.twimg.com/profile_images/1371430883576717313/LyhsMxnf_400x400.jpg"
   ).loadImage();
-  const coverRequest = new Request(coverUrl);
-  const coverRequest1 = new Request(coverUrl1);
-  const coverRequest2 = new Request(coverUrl2);
-  const coverImg = await coverRequest.loadImage();
-  const coverImg1 = await coverRequest1.loadImage();
-  const coverImg2 = await coverRequest2.loadImage();
+  coverRequest = new Request(coverUrl);
+  coverRequest1 = new Request(coverUrl1);
+  coverRequest2 = new Request(coverUrl2);
+  coverImg = await coverRequest.loadImage();
+  coverImg1 = await coverRequest1.loadImage();
+  coverImg2 = await coverRequest2.loadImage();
   writeDataToFile(
     params[0],
     userInformation,
@@ -87,8 +93,36 @@ try {
     writeDataToFile(params[0], userInformation, result, img);
   }
   const coverCache = loadImageFromFile(params[0]);
-  coverFromCache = widget.addImage(coverCache);
-  coverFromCache.centerAlignImage();
+  if (coverUrl === "") {
+    cov1.addSpacer();
+    coverFromCache = cov1.addImage(coverCache);
+    cov1.addSpacer();
+  } else {
+    coverImg = await coverRequest.loadImage();
+    cov1.addSpacer();
+    cov1.addImage(coverImg);
+    cov1.addSpacer();
+  }
+  if (coverUrl1 === "") {
+    cov2.addSpacer();
+    coverFromCache = cov2.addImage(coverCache);
+    cov2.addSpacer();
+  } else {
+    coverImg1 = await coverRequest1.loadImage();
+    cov2.addSpacer();
+    cov2.addImage(coverImg1);
+    cov2.addSpacer();
+  }
+  if (coverUrl2 === "") {
+    cov3.addSpacer();
+    coverFromCache = cov3.addImage(coverCache);
+    cov3.addSpacer();
+  } else {
+    coverImg2 = await coverRequest2.loadImage();
+    cov3.addSpacer();
+    cov3.addImage(coverImg2);
+    cov3.addSpacer();
+  }
 }
 
 //add title and author to widget
