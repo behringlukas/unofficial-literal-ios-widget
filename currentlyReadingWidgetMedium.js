@@ -93,35 +93,45 @@ try {
     writeDataToFile(params[0], userInformation, result, img);
   }
   const coverCache = loadImageFromFile(params[0]);
-  if (coverUrl === "") {
-    cov1.addSpacer();
-    coverFromCache = cov1.addImage(coverCache);
-    cov1.addSpacer();
+  if (
+    typeof coverUrl1 === "undefined" ||
+    typeof coverUrl2 === "undefined" ||
+    typeof coverUrl2 === "undefined"
+  ) {
+    coverFromCache = widget.addImage(coverCache);
+    coverFromCache.centerAlignImage();
+    widget.addSpacer();
   } else {
-    coverImg = await coverRequest.loadImage();
-    cov1.addSpacer();
-    cov1.addImage(coverImg);
-    cov1.addSpacer();
-  }
-  if (coverUrl1 === "") {
-    cov2.addSpacer();
-    coverFromCache = cov2.addImage(coverCache);
-    cov2.addSpacer();
-  } else {
-    coverImg1 = await coverRequest1.loadImage();
-    cov2.addSpacer();
-    cov2.addImage(coverImg1);
-    cov2.addSpacer();
-  }
-  if (coverUrl2 === "") {
-    cov3.addSpacer();
-    coverFromCache = cov3.addImage(coverCache);
-    cov3.addSpacer();
-  } else {
-    coverImg2 = await coverRequest2.loadImage();
-    cov3.addSpacer();
-    cov3.addImage(coverImg2);
-    cov3.addSpacer();
+    if (coverUrl === "") {
+      cov1.addSpacer();
+      coverFromCache = cov1.addImage(coverCache);
+      cov1.addSpacer();
+    } else {
+      coverImg = await coverRequest.loadImage();
+      cov1.addSpacer();
+      cov1.addImage(coverImg);
+      cov1.addSpacer();
+    }
+    if (coverUrl1 === "") {
+      cov2.addSpacer();
+      coverFromCache = cov2.addImage(coverCache);
+      cov2.addSpacer();
+    } else {
+      coverImg1 = await coverRequest1.loadImage();
+      cov2.addSpacer();
+      cov2.addImage(coverImg1);
+      cov2.addSpacer();
+    }
+    if (coverUrl2 === "") {
+      cov3.addSpacer();
+      coverFromCache = cov3.addImage(coverCache);
+      cov3.addSpacer();
+    } else {
+      coverImg2 = await coverRequest2.loadImage();
+      cov3.addSpacer();
+      cov3.addImage(coverImg2);
+      cov3.addSpacer();
+    }
   }
 }
 
@@ -238,9 +248,12 @@ function loadImageFromFile(user) {
 
 //show message if there is no currently reading book
 function showMessage() {
-  const noBook = widget.addText("You're not reading anything at the moment");
-  noBook.font = Font.systemFont(12);
   widget.addSpacer();
+  const noBook = widget.addText(
+    "You need to read at least 3 books to display them here."
+  );
+  widget.addSpacer();
+  noBook.font = Font.boldSystemFont(12);
   noBook.centerAlignText();
   if (params[1] === "dark") {
     widget.backgroundColor = Color.black();
