@@ -87,53 +87,41 @@ try {
   const coverImg = await coverRequest.loadImage();
   writeDataToFile(user, token, result, book, coverImg);
   const cover = st1.addImage(coverImg);
-  st1.addSpacer();
-  st2.addSpacer();
-  st21.addSpacer();
-  const coverPlaceholder = st21.addText(progressPercentage.toString() + "%");
-  st23.addSpacer();
-  const left = st23.addText(pagesLeft.toString());
-  st23.addSpacer();
-  st24.addSpacer();
-  const left2 = st24.addText("pages left");
-  st24.addSpacer();
-  left.font = Font.boldSystemFont(12);
-  left2.font = Font.systemFont(8);
-  coverPlaceholder.textColor = Color.black();
-  coverPlaceholder.centerAlignText();
-  left.textColor = Color.black();
-  left2.textColor = Color.black();
-  coverPlaceholder.font = Font.boldSystemFont(13);
-  left.centerAlignText();
-  st21.addSpacer();
-  widget.addSpacer();
 } catch (e) {
   if (img !== undefined) {
     writeDataToFile(user, token, result, book, img);
   }
   const coverCache = loadImageFromFile(user);
   coverFromCache = st1.addImage(coverCache);
-  st1.addSpacer();
-  st2.addSpacer();
-  st21.addSpacer();
-  const coverPlaceholder = st21.addText(progressPercentage.toString() + "%");
-  st23.addSpacer();
-  const left = st23.addText(pagesLeft.toString());
-  st23.addSpacer();
-  st24.addSpacer();
-  const left2 = st24.addText("pages left");
-  st24.addSpacer();
-  left.font = Font.boldSystemFont(12);
-  left2.font = Font.systemFont(8);
-  coverPlaceholder.textColor = Color.black();
-  coverPlaceholder.centerAlignText();
-  left.textColor = Color.black();
-  left2.textColor = Color.black();
-  coverPlaceholder.font = Font.boldSystemFont(13);
-  left.centerAlignText();
-  st21.addSpacer();
-  widget.addSpacer();
 }
+
+if ((totalPages || currentPage) === undefined) {
+  progressPercentage = 0;
+  pagesLeft = "all";
+}
+if (progressPercentage === 100 && pagesLeft != 0) {
+  progressPercentage = 99;
+}
+st1.addSpacer();
+st2.addSpacer();
+st21.addSpacer();
+const coverPlaceholder = st21.addText(progressPercentage.toString() + "%");
+st23.addSpacer();
+const left = st23.addText(pagesLeft.toString());
+st23.addSpacer();
+st24.addSpacer();
+const left2 = st24.addText("pages left");
+st24.addSpacer();
+left.font = Font.boldSystemFont(12);
+left2.font = Font.systemFont(8);
+coverPlaceholder.textColor = Color.black();
+coverPlaceholder.centerAlignText();
+left.textColor = Color.black();
+left2.textColor = Color.black();
+coverPlaceholder.font = Font.boldSystemFont(13);
+left.centerAlignText();
+st21.addSpacer();
+widget.addSpacer();
 
 try {
   const title = widget.addText(
