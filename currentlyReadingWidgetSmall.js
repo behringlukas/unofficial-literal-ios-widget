@@ -9,6 +9,10 @@ let coverUrl = ""; //URL for the cover
 let img; //image for placeholder
 let titleText; //book title
 let authorText; //author name
+const fontColorDarkmode = new Color("#FFFFFF"); //font color for darkmode
+const fontColorLightmode = new Color("#000000"); //font color for lightmode
+const backgroundColorDarkmode = new Color("#000000"); //background color for darkmode
+const backgroundColorLightmode = new Color("#FFFFFF"); //background color for lightmode
 
 //creating widget
 const widget = new ListWidget();
@@ -20,7 +24,7 @@ if (args.widgetParameter != null) {
   params = ["piet", "light"];
 }
 
-//get data(title,author,cover) from api
+//get user data, book data and url of cover from api
 const userInformation = await userData(params[0]);
 const result = await getData(userInformation);
 try {
@@ -36,18 +40,17 @@ try {
   const coverRequest = new Request(coverUrl);
   const coverImg = await coverRequest.loadImage();
   writeDataToFile(params[0], userInformation, result, coverImg);
-  const cover = widget.addImage(coverImg);
-  cover.centerAlignImage();
-  widget.addSpacer();
+  widget.addImage(coverImg).centerAlignImage();
 } catch (e) {
   if (img !== undefined) {
     writeDataToFile(params[0], userInformation, result, img);
   }
   const coverCache = loadImageFromFile(params[0]);
-  coverFromCache = widget.addImage(coverCache);
-  coverFromCache.centerAlignImage();
-  widget.addSpacer();
+  widget.addImage(coverCache).centerAlignImage();
 }
+
+//add spacing between book cover and book information
+widget.addSpacer();
 
 //add title and author to widget
 try {
@@ -58,24 +61,22 @@ try {
     result.data.booksByReadingStateAndProfile[0].authors[0]["name"];
   const authorText = widget.addText(author);
   authorText.centerAlignText();
-  titleText.font = Font.boldSystemFont(12);
-  authorText.font = Font.systemFont(11);
 
   titleText.font = Font.boldSystemFont(12);
   authorText.font = Font.systemFont(11);
 
   //set darkmode/lightmode based on user parameter input
   if (params[1] === "dark") {
-    widget.backgroundColor = Color.black();
-    titleText.textColor = Color.white();
-    authorText.textColor = Color.white();
+    widget.backgroundColor = backgroundColorDarkmode;
+    titleText.textColor = fontColorDarkmode;
+    authorText.textColor = fontColorDarkmode;
   } else {
-    widget.backgroundColor = Color.white();
-    titleText.textColor = Color.black();
-    authorText.textColor = Color.black();
+    widget.backgroundColor = backgroundColorLightmode;
+    titleText.textColor = fontColorLightmode;
+    authorText.textColor = fontColorLightmode;
   }
 } catch (e) {
-  showMessage();
+  showNoReadingMessage();
 }
 
 //write last retrieved data (also placeholder image) into iCloud file as cache
@@ -98,11 +99,11 @@ function writeDataToFile(user, userInformation, result, coverImg) {
 //load data from cache (iCloud folder)
 function loadDataFromFile(user) {
   let dir = fm.documentsDirectory();
-  var path = fm.joinPath(dir, persistFolder + "/" + user + ".json");
+  let path = fm.joinPath(dir, persistFolder + "/" + user + ".json");
   if (!fm.fileExists(path)) {
     console.log("No file found");
   } else {
-    var jsonString = fm.readString(path);
+    let jsonString = fm.readString(path);
     return JSON.parse(jsonString);
   }
 }
@@ -110,30 +111,31 @@ function loadDataFromFile(user) {
 //load image from cache (iCloud folder)
 function loadImageFromFile(user) {
   let dir = fm.documentsDirectory();
-  var pathImage = fm.joinPath(
+  let pathImage = fm.joinPath(
     dir,
     persistFolder + "/" + user + "Image" + ".json"
   );
   if (!fm.fileExists(pathImage)) {
     console.log("No file found");
   } else {
-    var image = fm.readImage(pathImage);
+    let image = fm.readImage(pathImage);
     return image;
   }
 }
 
 //show message if there is no currently reading book
-function showMessage() {
+function showNoReadingMessage() {
   const noBook = widget.addText("You're not reading anything at the moment");
   noBook.font = Font.systemFont(12);
   widget.addSpacer();
   noBook.centerAlignText();
+
   if (params[1] === "dark") {
-    widget.backgroundColor = Color.black();
-    noBook.textColor = Color.white();
+    widget.backgroundColor = backgroundColorDarkmode;
+    noBook.textColor = fontColorDarkmode;
   } else {
-    widget.backgroundColor = Color.white();
-    noBook.textColor = Color.black();
+    widget.backgroundColor = backgroundColorLightmode;
+    noBook.textColor = fontColorLightmode;
   }
 }
 
