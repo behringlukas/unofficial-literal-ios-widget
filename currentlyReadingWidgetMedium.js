@@ -5,16 +5,20 @@
 let params = null; //parameters from input via edit widget
 let fm = FileManager.iCloud(); //fileManager to make widget work offline
 let persistFolder = "literalWidgetCache"; //foldername to save cached data
-let coverUrl = ""; //URL for the cover
+let coverUrlBook = ""; //URL for the cover
 let img; //image for placeholder
 let titleText; //book title
 let authorText; //author name
-let coverImg;
-let coverImg1;
-let coverImg2;
-let coverRequest;
-let coverRequest1;
-let coverRequest2;
+let coverImgBook1; //cover image book one
+let coverImgBook2; //cover image book two
+let coverImgBook3; //cover image book three
+let coverRequestBook1; //cover image request book one
+let coverRequestBook2; //cover image request book two
+let coverRequestBook3; //cover image request book three
+const fontColorDarkmode = new Color("#FFFFFF"); //font color for darkmode
+const fontColorLightmode = new Color("#000000"); //font color for lightmode
+const backgroundColorDarkmode = new Color("#000000"); //background color for darkmode
+const backgroundColorLightmode = new Color("#FFFFFF"); //background color for lightmode
 
 //creating widget
 const widget = new ListWidget();
@@ -26,38 +30,44 @@ if (args.widgetParameter != null) {
   params = ["piet", "light"];
 }
 
-//get data(title,author,cover) from api
+//get user data, book data and url of cover from api
 const userInformation = await userData(params[0]);
 const result = await getData(userInformation);
-console.log(result);
 try {
-  coverUrl = result.data.booksByReadingStateAndProfile[0]["cover"];
-  coverUrl1 = result.data.booksByReadingStateAndProfile[1]["cover"];
-  coverUrl2 = result.data.booksByReadingStateAndProfile[2]["cover"];
+  coverUrlBook1 = result.data.booksByReadingStateAndProfile[0]["cover"];
+  coverUrlBook2 = result.data.booksByReadingStateAndProfile[1]["cover"];
+  coverUrlBook3 = result.data.booksByReadingStateAndProfile[2]["cover"];
 } catch (e) {}
 
+//create main container for content
 const main = widget.addStack();
 main.setPadding(5, 5, 5, 5);
 main.layoutHorizontally();
 
+//create single containers for each book inside main container
 const stackB1 = main.addStack();
 const stackB2 = main.addStack();
 const stackB3 = main.addStack();
-
 stackB1.layoutVertically();
 stackB2.layoutVertically();
 stackB3.layoutVertically();
+stackB1.setPadding(0, 15, 0, 15);
+stackB2.setPadding(0, 0, 0, 15);
+stackB3.setPadding(0, 0, 0, 15);
 
-const cov1 = stackB1.addStack();
-const cov2 = stackB2.addStack();
-const cov3 = stackB3.addStack();
+//create container for cover inside book container (B1-3)
+const cover1 = stackB1.addStack();
+const cover2 = stackB2.addStack();
+const cover3 = stackB3.addStack();
 
-const tex1 = stackB1.addStack();
-tex1.layoutVertically();
-const tex2 = stackB2.addStack();
-tex2.layoutVertically();
-const tex3 = stackB3.addStack();
-tex3.layoutVertically();
+//create container for book information inside book container (B1-3)
+const bookInfo1 = stackB1.addStack();
+bookInfo1.setPadding;
+const bookInfo2 = stackB2.addStack();
+const bookInfo3 = stackB3.addStack();
+bookInfo1.layoutVertically();
+bookInfo2.layoutVertically();
+bookInfo3.layoutVertically();
 
 //add cover of book if online, cached cover if offline or placeholder if no currently reading book
 //add it to widget
@@ -65,134 +75,152 @@ try {
   img = await new Request(
     "https://pbs.twimg.com/profile_images/1371430883576717313/LyhsMxnf_400x400.jpg"
   ).loadImage();
-  coverRequest = new Request(coverUrl);
-  coverRequest1 = new Request(coverUrl1);
-  coverRequest2 = new Request(coverUrl2);
-  coverImg = await coverRequest.loadImage();
-  coverImg1 = await coverRequest1.loadImage();
-  coverImg2 = await coverRequest2.loadImage();
+  coverRequestBook1 = new Request(coverUrlBook1);
+  coverRequestBook2 = new Request(coverUrlBook2);
+  coverRequestBook3 = new Request(coverUrlBook3);
+  coverImgBook1 = await coverRequestBook1.loadImage();
+  coverImgBook2 = await coverRequestBook2.loadImage();
+  coverImgBook3 = await coverRequestBook3.loadImage();
+
+  //cache all data
   writeDataToFile(
     params[0],
     userInformation,
     result,
-    coverImg,
-    coverImg1,
-    coverImg2
+    img,
+    coverImgBook1,
+    coverImgBook2,
+    coverImgBook3
   );
-  cov1.addSpacer();
-  cov1.addImage(coverImg);
-  cov1.addSpacer();
-  cov2.addSpacer();
-  cov2.addImage(coverImg1);
-  cov2.addSpacer();
-  cov3.addSpacer();
-  cov3.addImage(coverImg2);
-  cov3.addSpacer();
+
+  //add spacing
+  cover1.addImage(coverImgBook1);
+  cover1.addSpacer();
+  cover2.addImage(coverImgBook2);
+  cover2.addSpacer();
+  cover3.addImage(coverImgBook3);
+  cover3.addSpacer();
 } catch (e) {
   if (img !== undefined) {
     writeDataToFile(params[0], userInformation, result, img);
   }
-  const coverCache = loadImageFromFile(params[0]);
+
+  const coverCache1 = loadImageFromFile1(params[0]);
+  const coverCache2 = loadImageFromFile2(params[0]);
+  const coverCache3 = loadImageFromFile3(params[0]);
+  const coverCachePlaceholder = loadImageFromFile4(params[0]);
+
   if (
-    typeof coverUrl1 === "undefined" ||
-    typeof coverUrl2 === "undefined" ||
-    typeof coverUrl2 === "undefined"
+    typeof coverUrlBook1 === "undefined" ||
+    typeof coverUrlBook2 === "undefined" ||
+    typeof coverUrlBook3 === "undefined"
   ) {
-    coverFromCache = widget.addImage(coverCache);
-    coverFromCache.centerAlignImage();
+    widget.addImage(coverCachePlaceholder).centerAlignImage();
     widget.addSpacer();
   } else {
-    if (coverUrl === "") {
-      cov1.addSpacer();
-      coverFromCache = cov1.addImage(coverCache);
-      cov1.addSpacer();
+    if (coverUrlBook1 === "") {
+      cover1.addImage(coverCachePlaceholder);
+      cover1.addSpacer();
     } else {
-      coverImg = await coverRequest.loadImage();
-      cov1.addSpacer();
-      cov1.addImage(coverImg);
-      cov1.addSpacer();
+      try {
+        coverImgBook1 = await coverRequestBook1.loadImage();
+        cover1.addImage(coverImgBook1);
+        cover1.addSpacer();
+      } catch (e) {
+        cover1.addImage(coverCache1);
+        cover1.addSpacer();
+      }
     }
-    if (coverUrl1 === "") {
-      cov2.addSpacer();
-      coverFromCache = cov2.addImage(coverCache);
-      cov2.addSpacer();
+    if (coverUrlBook2 === "") {
+      cover2.addImage(coverCachePlaceholder);
+      cover2.addSpacer();
     } else {
-      coverImg1 = await coverRequest1.loadImage();
-      cov2.addSpacer();
-      cov2.addImage(coverImg1);
-      cov2.addSpacer();
+      try {
+        coverImgBook2 = await coverRequestBook2.loadImage();
+        cover2.addImage(coverImgBook2);
+        cover2.addSpacer();
+      } catch (e) {
+        cover2.addImage(coverCache2);
+        cover2.addSpacer();
+      }
     }
-    if (coverUrl2 === "") {
-      cov3.addSpacer();
-      coverFromCache = cov3.addImage(coverCache);
-      cov3.addSpacer();
+    if (coverUrlBook3 === "") {
+      cover3.addImage(coverCachePlaceholder);
+      cover3.addSpacer();
     } else {
-      coverImg2 = await coverRequest2.loadImage();
-      cov3.addSpacer();
-      cov3.addImage(coverImg2);
-      cov3.addSpacer();
+      try {
+        coverImgBook3 = await coverRequestBook3.loadImage();
+        cover3.addImage(coverImgBook3);
+        cover3.addSpacer();
+      } catch (e) {
+        cover3.addImage(coverCache3);
+        cover3.addSpacer();
+      }
     }
+    writeDataToFile(
+      params[0],
+      userInformation,
+      result,
+      img,
+      coverImgBook1,
+      coverImgBook2,
+      coverImgBook3
+    );
   }
 }
 
 //add title and author to widget
 try {
-  tex1.addSpacer();
-  const title = result.data.booksByReadingStateAndProfile[0]["title"];
-  tex1.addSpacer();
-  tex2.addSpacer();
-  const title1 = result.data.booksByReadingStateAndProfile[1]["title"];
-  tex2.addSpacer();
-  tex3.addSpacer();
-  const title2 = result.data.booksByReadingStateAndProfile[2]["title"];
-  tex3.addSpacer();
+  const titleBook1 = result.data.booksByReadingStateAndProfile[0]["title"];
+  bookInfo1.addSpacer();
+  const titleBook2 = result.data.booksByReadingStateAndProfile[1]["title"];
+  bookInfo2.addSpacer();
+  const titleBook3 = result.data.booksByReadingStateAndProfile[2]["title"];
+  bookInfo3.addSpacer();
 
-  const titleText = tex1.addText(title);
-  const titleText1 = tex2.addText(title1);
-  const titleText2 = tex3.addText(title2);
+  const titleText1 = bookInfo1.addText(titleBook1);
+  const titleText2 = bookInfo2.addText(titleBook2);
+  const titleText3 = bookInfo3.addText(titleBook3);
 
-  const author =
-    result.data.booksByReadingStateAndProfile[0].authors[0]["name"];
   const author1 =
-    result.data.booksByReadingStateAndProfile[1].authors[0]["name"];
+    result.data.booksByReadingStateAndProfile[0].authors[0]["name"];
   const author2 =
+    result.data.booksByReadingStateAndProfile[1].authors[0]["name"];
+  const author3 =
     result.data.booksByReadingStateAndProfile[2].authors[0]["name"];
 
-  const authorText = tex1.addText(author);
-  const authorText1 = tex2.addText(author1);
-  const authorText2 = tex3.addText(author2);
+  const authorText1 = bookInfo1.addText(author1);
+  const authorText2 = bookInfo2.addText(author2);
+  const authorText3 = bookInfo3.addText(author3);
 
-  authorText.centerAlignText();
-  authorText1.centerAlignText();
-  authorText2.centerAlignText();
-
-  titleText.font = Font.boldSystemFont(12);
-  authorText.font = Font.systemFont(11);
   titleText1.font = Font.boldSystemFont(12);
-  authorText1.font = Font.systemFont(11);
   titleText2.font = Font.boldSystemFont(12);
+  titleText3.font = Font.boldSystemFont(12);
+
+  authorText1.font = Font.systemFont(11);
   authorText2.font = Font.systemFont(11);
+  authorText3.font = Font.systemFont(11);
 
   //set darkmode/lightmode based on user parameter input
   if (params[1] === "dark") {
-    widget.backgroundColor = Color.black();
-    titleText.textColor = Color.white();
-    authorText.textColor = Color.white();
-    titleText1.textColor = Color.white();
-    authorText1.textColor = Color.white();
-    titleText2.textColor = Color.white();
-    authorText2.textColor = Color.white();
+    widget.backgroundColor = backgroundColorDarkmode;
+    titleText1.textColor = fontColorDarkmode;
+    authorText1.textColor = fontColorDarkmode;
+    titleText2.textColor = fontColorDarkmode;
+    authorText2.textColor = fontColorDarkmode;
+    titleText3.textColor = fontColorDarkmode;
+    authorText3.textColor = fontColorDarkmode;
   } else {
-    widget.backgroundColor = Color.white();
-    titleText.textColor = Color.black();
-    authorText.textColor = Color.black();
-    titleText1.textColor = Color.black();
-    authorText1.textColor = Color.black();
-    titleText2.textColor = Color.black();
-    authorText2.textColor = Color.black();
+    widget.backgroundColor = backgroundColorLightmode;
+    titleText1.textColor = fontColorLightmode;
+    authorText1.textColor = fontColorLightmode;
+    titleText2.textColor = fontColorLightmode;
+    authorText2.textColor = fontColorLightmode;
+    titleText3.textColor = fontColorLightmode;
+    authorText3.textColor = fontColorLightmode;
   }
 } catch (e) {
-  showMessage();
+  showNoReadingMessage();
 }
 
 //write last retrieved data (also placeholder image) into iCloud file as cache
@@ -201,53 +229,130 @@ function writeDataToFile(
   user,
   userInformation,
   result,
-  coverImg,
+  img,
   coverImg1,
-  coverImg2
+  coverImg2,
+  coverImg3
 ) {
   let dir = fm.documentsDirectory();
   let path = fm.joinPath(dir, persistFolder + "/");
-  let pathImage = fm.joinPath(dir, persistFolder + "/");
+  let pathImage1 = fm.joinPath(dir, persistFolder + "/");
+  let pathImage2 = fm.joinPath(dir, persistFolder + "/");
+  let pathImage3 = fm.joinPath(dir, persistFolder + "/");
+  let pathImagePlaceholder = fm.joinPath(dir, persistFolder + "/");
   if (!fm.fileExists(path)) {
     fm.createDirectory(path, false);
-  } else if (!fm.fileExists(pathImage)) {
-    fm.createDirectory(pathImage, false);
+  } else if (!fm.fileExists(pathImage1)) {
+    fm.createDirectory(pathImage1, false);
+  } else if (!fm.fileExists(pathImage2)) {
+    fm.createDirectory(pathImage2, false);
+  } else if (!fm.fileExists(pathImage3)) {
+    fm.createDirectory(pathImage3, false);
+  } else if (!fm.fileExists(pathImagePlaceholder)) {
+    fm.createDirectory(pathImagePlaceholder, false);
   }
   path += user + "medium" + ".json";
-  pathImage += user + "medium" + "Image" + ".json";
+  pathImage1 += user + "medium" + "Image1" + ".json";
+  pathImage2 += user + "medium" + "Image2" + ".json";
+  pathImage3 += user + "medium" + "Image3" + ".json";
+  pathImagePlaceholder += user + "medium" + "ImagePlaceholder" + ".json";
   fm.writeString(path, JSON.stringify([userInformation, result]));
-  fm.writeImage(pathImage, coverImg, coverImg1, coverImg2);
+  try {
+    fm.writeImage(pathImage1, coverImg1);
+    console.log(1);
+  } catch (e) {}
+  try {
+    fm.writeImage(pathImage2, coverImg2);
+    console.log(2);
+  } catch (e) {
+    console.log(e);
+  }
+  try {
+    fm.writeImage(pathImage3, coverImg3);
+    console.log(3);
+  } catch (e) {
+    console.log(e);
+  }
+  try {
+    fm.writeImage(pathImagePlaceholder, img);
+    console.log(4);
+  } catch (e) {}
 }
 
 //load data from cache (iCloud folder)
 function loadDataFromFile(user) {
   let dir = fm.documentsDirectory();
-  var path = fm.joinPath(dir, persistFolder + "/" + user + "medium" + ".json");
+  let path = fm.joinPath(dir, persistFolder + "/" + user + "medium" + ".json");
   if (!fm.fileExists(path)) {
     console.log("No file found");
   } else {
-    var jsonString = fm.readString(path);
+    let jsonString = fm.readString(path);
     return JSON.parse(jsonString);
   }
 }
 
-//load image from cache (iCloud folder)
-function loadImageFromFile(user) {
+//load image from book1 from cache (iCloud folder)
+function loadImageFromFile1(user) {
   let dir = fm.documentsDirectory();
-  var pathImage = fm.joinPath(
+  let pathImage1 = fm.joinPath(
     dir,
-    persistFolder + "/" + user + "medium" + "Image" + ".json"
+    persistFolder + "/" + user + "medium" + "Image1" + ".json"
   );
-  if (!fm.fileExists(pathImage)) {
+  if (!fm.fileExists(pathImage1)) {
     console.log("No file found");
   } else {
-    var image = fm.readImage(pathImage);
+    let image = fm.readImage(pathImage1);
+    return image;
+  }
+}
+
+//load image from book2 from cache (iCloud folder)
+function loadImageFromFile2(user) {
+  let dir = fm.documentsDirectory();
+  let pathImage2 = fm.joinPath(
+    dir,
+    persistFolder + "/" + user + "medium" + "Image2" + ".json"
+  );
+  if (!fm.fileExists(pathImage2)) {
+    console.log("No file found");
+  } else {
+    let image = fm.readImage(pathImage2);
+    return image;
+  }
+}
+
+//load image from book3 from cache (iCloud folder)
+function loadImageFromFile3(user) {
+  let dir = fm.documentsDirectory();
+  let pathImage3 = fm.joinPath(
+    dir,
+    persistFolder + "/" + user + "medium" + "Image3" + ".json"
+  );
+  if (!fm.fileExists(pathImage3)) {
+    console.log("No file found");
+  } else {
+    let image = fm.readImage(pathImage3);
+    return image;
+  }
+}
+
+//load image from placeholder from cache (iCloud folder)
+function loadImageFromFile4(user) {
+  let dir = fm.documentsDirectory();
+  let pathImagePlaceholder = fm.joinPath(
+    dir,
+    persistFolder + "/" + user + "medium" + "ImagePlaceholder" + ".json"
+  );
+  if (!fm.fileExists(pathImagePlaceholder)) {
+    console.log("No file found");
+  } else {
+    let image = fm.readImage(pathImagePlaceholder);
     return image;
   }
 }
 
 //show message if there is no currently reading book
-function showMessage() {
+function showNoReadingMessage() {
   widget.addSpacer();
   const noBook = widget.addText(
     "You need to read at least 3 books to display them here."
@@ -255,12 +360,13 @@ function showMessage() {
   widget.addSpacer();
   noBook.font = Font.boldSystemFont(12);
   noBook.centerAlignText();
+
   if (params[1] === "dark") {
-    widget.backgroundColor = Color.black();
-    noBook.textColor = Color.white();
+    widget.backgroundColor = backgroundColorDarkmode;
+    noBook.textColor = fontColorDarkmode;
   } else {
-    widget.backgroundColor = Color.white();
-    noBook.textColor = Color.black();
+    widget.backgroundColor = backgroundColorLightmode;
+    noBook.textColor = fontColorLightmode;
   }
 }
 
@@ -276,7 +382,6 @@ async function userData(userHandle) {
 					}
     			}`;
 
-  console.log(userHandle);
   const body = {
     query: query,
     variables: {
