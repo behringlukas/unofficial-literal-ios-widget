@@ -25,7 +25,7 @@ const backgroundColor = new Color("#000000"); //background color
 const widget = new ListWidget();
 const stack = widget.addStack();
 stack.size = new Size(60, 60);
-stack.setPadding(0, 18, 0, 12);
+stack.setPadding(0, 16, 0, 12);
 stack.layoutVertically();
 stack.backgroundColor = backgroundColor;
 
@@ -122,6 +122,7 @@ function loadDataFromFile(user) {
 
 //show message if there is no currently reading book
 function showMessage() {
+  stack.addSpacer();
   const noBook = stack.addText("Read a book!");
   noBook.font = Font.systemFont(10);
   stack.addSpacer();
