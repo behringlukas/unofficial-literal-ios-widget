@@ -10,35 +10,35 @@ Possible improvements:
 
 ## Table of Contents
 
-1. [How to get the widgets](##a.-how-to-get-the-widgets)
-2. [List of widgets](##b.-list-of-widgets) <br>
-   [2.1 Homescreen widgets](###Ba.-homescreen-widgets) <br>
-   [2.2 Lockscreen widgets](###Bb.-lockscreen-widgets)
-
-3. [How to configure and add to homescreen](##c.-how-to-configure-and-add-to-homescreen) <br>
-   [3.1 Homescreen widgets](###Ca.-homescreen-widgets) <br>
-   [3.2 Lockscreen widgets](###Cb.-lockscreen-widgets)
-4. [Limits and behaviour of the widgets](##d.limits-and-behaviour-of-the-widgets)
-5. [Personal note](##e.limits-and-behaviour-of-the-widgets)
+- [Table of Contents](#table-of-contents)
+- [A. How to get the widgets](#a-how-to-get-the-widgets)
+- [B. List of widgets](#b-list-of-widgets)
+  - [Ba. Homescreen widgets](#ba-homescreen-widgets)
+  - [Bb. Lockscreen widgets](#bb-lockscreen-widgets)
+- [C. How to configure and add to homescreen](#c-how-to-configure-and-add-to-homescreen)
+  - [Ca. Homescreen widgets](#ca-homescreen-widgets)
+  - [Cb. Lockscreen widgets](#cb-lockscreen-widgets)
+- [D. Limits and behaviour of the widgets](#d-limits-and-behaviour-of-the-widgets)
+- [E. Personal note](#e-personal-note)
 
 ---
 
 ## A. How to get the widgets
 
-1. Take a look at the [List of widgets](#b.-list-of-widgets).
+1. Take a look at the [List of widgets](#b-list-of-widgets).
 2. Download the [Scriptable app](https://apps.apple.com/no/app/scriptable/id1405459188).
 3. Start the app and click on the small add-button in the top right corner.
 4. Change the text on the top middle to one of the widgets you wish to use.
 5. Click on the ".js"-file for the chosen widget and copy the complete code.
 6. Paste the code into the editor in Scriptable that you just created and renamed.
-7. Take a look at [How to configure and add to homesceen](#c.-how-to-configure-and-add-to-homescreen).
+7. Take a look at [How to configure and add to homesceen](#c-how-to-configure-and-add-to-homescreen).
 8. Repeat for every widget you want to add. <br>
 
-Please also check the [Limits and behaviour of the widgets](#d.-limits-and-behaviour-of-the-widgets), since they can act differently.
+Please also check the [Limits and behaviour of the widgets](#d-limits-and-behaviour-of-the-widgets), since they can act differently.
 
 ## B. List of widgets
 
-- All widgets display the latest data through caching the last state in an iCloud folder. <br>
+- All widgets display the latest data offline, through caching the last state in an iCloud folder. <br>
 - Literal doesn't provide a cover for every book, so some books are displayed with an placeholder (Literal logo). <br>
 
 ### Ba. Homescreen widgets
@@ -143,5 +143,5 @@ _Why did I create this project?_
 
 _Feel free to connect with me_
 
-- bento.me/behringlukas
-- twitter.com/behringlukas
+- [bento.me/behringlukas](https://bento.me/behringlukas)
+- [twitter.com/behringlukas](https://twitter.com/behringlukas)
