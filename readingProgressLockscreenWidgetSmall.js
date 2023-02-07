@@ -2,26 +2,32 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: teal; icon-glyph: magic;
 
-let fm = FileManager.iCloud(); //fileManager to make widget work offline
-let persistFolder = "literalWidgetCache"; //foldername to save cached data
-let userId;
-let token;
-let book;
-let result;
-let tokenResult;
-let currentBook;
-let totalPages;
-let currentPage;
-let progressPercentage;
-let pagesLeft;
-
-//creating widget
-const widget = new ListWidget();
-
-//user credentials
 let userMail = "PUT YOUR MAIL ADRESSE INSIDE THESE QUOTATIONS";
 let password = "PUT YOUR PASSWORD INSIDE THESE QUOTATIONS";
 let user = "PUT YOUR USERHANDLE IN HERE";
+
+let fm = FileManager.iCloud(); //fileManager to make widget work offline
+let persistFolder = "literalWidgetCache"; //foldername to save cached data
+let userId; //id of user
+let token; //token for authentication
+let book; //book data
+let result; //reading stats
+let tokenResult; //user data
+let currentBook; //currently reading book
+let totalPages; //total pages of currently reading book
+let currentPage; //current reading page of currently reading book
+let progressPercentage; //progress in percentage
+let pagesLeft; //amount of pages left until finished
+const fontColor = new Color("#FFFFFF"); //font color
+const backgroundColor = new Color("#000000"); //background color
+
+//creating widget
+const widget = new ListWidget();
+const stack = widget.addStack();
+stack.size = new Size(60, 60);
+stack.setPadding(0, 18, 0, 12);
+stack.layoutVertically();
+stack.backgroundColor = backgroundColor;
 
 //get bearer token for user from api
 try {
@@ -32,10 +38,11 @@ try {
   token = tokenResult;
 }
 
-//get data from api
+//get data from api and calculate progress percentage and page progress
 try {
   book = await getCurrentlyReading(userId);
   currentBook = book.data.booksByReadingStateAndProfile[0]["id"];
+
   result = await getData(user, currentBook, token);
   totalPages = result.data.readingProgresses[0]["capacity"];
   currentPage = result.data.readingProgresses[0]["progress"]; //
@@ -46,37 +53,48 @@ try {
   currentBook = result[0];
   totalPages = result[1];
   currentPage = result[2];
+
   progressPercentage = Math.round((currentPage / totalPages) * 100);
   pagesLeft = totalPages - currentPage;
 }
 
+//caching the book data and reading stats
 writeDataToFile(user, token, result, book);
 
+//if there is no book/no currently or total page amount display 0 and all instead of NaN
 try {
   const title = book.data.booksByReadingStateAndProfile[0]["title"];
   if ((totalPages || currentPage) === undefined) {
     progressPercentage = 0;
     pagesLeft = "all";
   }
+
+  //if there are only a few pages pagesLeftNumber display 99% instead of rounding up to 100%
   if (progressPercentage === 100 && pagesLeft != 0) {
     progressPercentage = 99;
   }
-  const coverPlaceholder = widget.addText(progressPercentage.toString() + "%");
-  widget.addSpacer(10);
-  const left = widget.addText(pagesLeft.toString());
-  const left2 = widget.addText("pages left");
-  coverPlaceholder.font = Font.boldSystemFont(12);
-  left.font = Font.boldSystemFont(12);
-  left2.font = Font.boldSystemFont(6);
-  coverPlaceholder.centerAlignText();
-  left.centerAlignText();
-  left2.centerAlignText();
+
+  //add percentage, pages left number and label to the stack
+  const percentageProgress = stack.addText(progressPercentage.toString() + "%");
+  stack.addSpacer(5);
+  const pagesLeftNumber = stack.addText(pagesLeft.toString());
+  const pagesLeftLabel = stack.addText("pages left");
+
+  //set font size, color and alignment
+  percentageProgress.font = Font.boldSystemFont(10);
+  pagesLeftNumber.font = Font.boldSystemFont(10);
+  pagesLeftLabel.font = Font.boldSystemFont(5);
+  percentageProgress.centerAlignText();
+  pagesLeftNumber.centerAlignText();
+  pagesLeftLabel.centerAlignText();
+  percentageProgress.textColor = fontColor;
+  pagesLeftNumber.textColor = fontColor;
+  pagesLeftLabel.textColor = fontColor;
 } catch (e) {
   showMessage();
 }
 
-//write last retrieved data (also placeholder image) into iCloud file as cache
-//separate files for data and loaded png image
+//write last retrieved data into iCloud file as cache
 function writeDataToFile(user, token, result, currentBook) {
   let dir = fm.documentsDirectory();
   let path = fm.joinPath(dir, persistFolder + "/");
@@ -104,9 +122,9 @@ function loadDataFromFile(user) {
 
 //show message if there is no currently reading book
 function showMessage() {
-  const noBook = widget.addText("Read a book!");
+  const noBook = stack.addText("Read a book!");
   noBook.font = Font.systemFont(10);
-  widget.addSpacer();
+  stack.addSpacer();
   noBook.centerAlignText();
 }
 
