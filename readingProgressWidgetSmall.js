@@ -20,7 +20,7 @@ let currentBook; //currently reading book
 let totalPages; //total pages of currently reading book
 let currentPage; //current reading page of currently reading book
 let progressPercentage; //progress in percentage
-let pagespagesLeftNumber; //amount of pages pagesLeftNumber until finished
+let pagesLeft; //amount of pages pagesLeft until finished
 const statsBackgroundColorLightmode = new Color("#DBDBDB"); //background color for books stats
 const statsBackgroundColorDarkmode = new Color("#404040");
 const fontColorDarkmode = new Color("#FFFFFF"); //font color for darkmode
@@ -81,7 +81,7 @@ try {
   currentPage = result.data.readingProgresses[0]["progress"];
 
   progressPercentage = Math.round((currentPage / totalPages) * 100);
-  pagespagesLeftNumber = totalPages - currentPage;
+  pagesLeft = totalPages - currentPage;
 } catch (e) {
   result = await getData(user, currentBook, token);
   currentBook = result[0];
@@ -89,7 +89,7 @@ try {
   currentPage = result[2];
 
   progressPercentage = Math.round((currentPage / totalPages) * 100);
-  pagespagesLeftNumber = totalPages - currentPage;
+  pagesLeft = totalPages - currentPage;
 }
 
 //get coverUrl
@@ -118,11 +118,11 @@ try {
 //if there is no book/no currently or total page amount display 0 and all instead of NaN
 if ((totalPages || currentPage) === undefined) {
   progressPercentage = 0;
-  pagespagesLeftNumber = "all";
+  pagesLeft = "all";
 }
 
 //if there are only a few pages pagesLeftNumber display 99% instead of rounding up to 100%
-if (progressPercentage === 100 && pagespagesLeftNumber != 0) {
+if (progressPercentage === 100 && pagesLeft != 0) {
   progressPercentage = 99;
 }
 
@@ -136,9 +136,7 @@ const percentageProgress = stackProgressPercentage.addText(
   progressPercentage.toString() + "%"
 );
 stackProgressPages.addSpacer();
-const pagesLeftNumber = stackProgressPages.addText(
-  pagespagesLeftNumber.toString()
-);
+const pagesLeftNumber = stackProgressPages.addText(pagesLeft.toString());
 stackProgressPages.addSpacer();
 stackProgressPagesLeftLabel.addSpacer();
 const pagesLeftLabel = stackProgressPagesLeftLabel.addText("pages left");
