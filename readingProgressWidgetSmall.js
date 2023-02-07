@@ -2,29 +2,34 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: teal; icon-glyph: magic;
 
+let userMail = "PUT YOUR MAIL ADRESSE INSIDE THESE QUOTATIONS";
+let password = "PUT YOUR PASSWORD INSIDE THESE QUOTATIONS";
+let user = "PUT YOUR USERHANDLE IN HERE";
+const darkmode = false; //change to true for darkmode, false for lightmode
+
 let fm = FileManager.iCloud(); //fileManager to make widget work offline
 let persistFolder = "literalWidgetCache"; //foldername to save cached data
 let coverUrl = ""; //URL for the cover
 let img; //image for placeholder
-let userId;
-let token;
-let book;
-let result;
-let tokenResult;
-let currentBook;
-let totalPages;
-let currentPage;
-let progressPercentage;
-let pagesLeft;
+let userId; //id of user
+let token; //token for authentication
+let book; //book data
+let result; //reading stats
+let tokenResult; //user data
+let currentBook; //currently reading book
+let totalPages; //total pages of currently reading book
+let currentPage; //current reading page of currently reading book
+let progressPercentage; //progress in percentage
+let pagespagesLeftNumber; //amount of pages pagesLeftNumber until finished
+const statsBackgroundColorLightmode = new Color("#DBDBDB"); //background color for books stats
+const statsBackgroundColorDarkmode = new Color("#404040");
+const fontColorDarkmode = new Color("#FFFFFF"); //font color for darkmode
+const fontColorLightmode = new Color("#000000"); //font color for lightmode
+const backgroundColorDarkmode = new Color("#000000"); //background color for darkmode
+const backgroundColorLightmode = new Color("#FFFFFF"); //background color for lightmode
 
 //creating widget
 const widget = new ListWidget();
-const darkmode = false;
-
-//user credentials
-let userMail = "PUT YOUR MAIL ADRESSE INSIDE THESE QUOTATIONS";
-let password = "PUT YOUR PASSWORD INSIDE THESE QUOTATIONS";
-let user = "PUT YOUR USERHANDLE IN HERE";
 
 //get bearer token for user from api
 try {
@@ -35,50 +40,65 @@ try {
   token = tokenResult;
 }
 
-const main = widget.addStack();
-const st1 = main.addStack();
-const st2 = main.addStack();
-const st21 = st2.addStack();
-st2.addSpacer(11);
-const st22 = st2.addStack();
-const st23 = st22.addStack();
-const st24 = st22.addStack();
+//mainTop layout for widget
+const mainTop = widget.addStack();
+const mainBottom = widget.addStack();
+const stackCover = mainTop.addStack();
+const stackInfo = mainTop.addStack();
+const stackProgressPercentage = stackInfo.addStack();
+stackInfo.addSpacer(11);
+const stackPagesProgressContainer = stackInfo.addStack();
+const stackProgressPages = stackPagesProgressContainer.addStack();
+const stackProgressPagesLeftLabel = stackPagesProgressContainer.addStack();
 
-st2.layoutVertically();
-st21.setPadding(5, 0, 5, 0);
-st21.backgroundColor = new Color("#dbdbdb");
-st22.setPadding(5, 0, 5, 0);
-st22.backgroundColor = new Color("#dbdbdb");
-st2.setPadding(1, 1, 1, 1);
-st21.cornerRadius = 5;
-st22.cornerRadius = 5;
-st21.layoutHorizontally();
-st22.layoutVertically();
-st23.layoutHorizontally();
-st24.layoutHorizontally();
+//padding of stacks
+stackCover.size = new Size(60, 70);
+mainTop.setPadding(10, 0, 0, 0);
+mainBottom.setPadding(0, 0, 10, 0);
+stackInfo.setPadding(1, 1, 1, 1);
+stackProgressPercentage.setPadding(5, 0, 5, 0);
+stackPagesProgressContainer.setPadding(5, 0, 5, 0);
 
-//get data from api
+//background color and border radius of stats stacks
+stackProgressPercentage.cornerRadius = 5;
+stackPagesProgressContainer.cornerRadius = 5;
+
+//layout direction of stacks
+mainBottom.layoutVertically();
+stackInfo.layoutVertically();
+stackProgressPercentage.layoutHorizontally();
+stackPagesProgressContainer.layoutVertically();
+stackProgressPages.layoutHorizontally();
+stackProgressPagesLeftLabel.layoutHorizontally();
+
+//get data from api and calculate progress percentage and page progress
 try {
   book = await getCurrentlyReading(userId);
   currentBook = book.data.booksByReadingStateAndProfile[0]["id"];
+
   result = await getData(user, currentBook, token);
   totalPages = result.data.readingProgresses[0]["capacity"];
-  currentPage = result.data.readingProgresses[0]["progress"]; //
+  currentPage = result.data.readingProgresses[0]["progress"];
+
   progressPercentage = Math.round((currentPage / totalPages) * 100);
-  pagesLeft = totalPages - currentPage;
+  pagespagesLeftNumber = totalPages - currentPage;
 } catch (e) {
   result = await getData(user, currentBook, token);
   currentBook = result[0];
   totalPages = result[1];
   currentPage = result[2];
+
   progressPercentage = Math.round((currentPage / totalPages) * 100);
-  pagesLeft = totalPages - currentPage;
+  pagespagesLeftNumber = totalPages - currentPage;
 }
 
+//get coverUrl
 try {
   coverUrl = book.data.booksByReadingStateAndProfile[0]["cover"];
 } catch (e) {}
 
+//add cover of book if online, cached cover if offline or placeholder if no currently reading book
+//add it to widget
 try {
   img = await new Request(
     "https://pbs.twimg.com/profile_images/1371430883576717313/LyhsMxnf_400x400.jpg"
@@ -86,66 +106,94 @@ try {
   const coverRequest = new Request(coverUrl);
   const coverImg = await coverRequest.loadImage();
   writeDataToFile(user, token, result, book, coverImg);
-  const cover = st1.addImage(coverImg);
+  stackCover.addImage(coverImg);
 } catch (e) {
   if (img !== undefined) {
     writeDataToFile(user, token, result, book, img);
   }
   const coverCache = loadImageFromFile(user);
-  coverFromCache = st1.addImage(coverCache);
+  stackCover.addImage(coverCache);
 }
 
+//if there is no book/no currently or total page amount display 0 and all instead of NaN
 if ((totalPages || currentPage) === undefined) {
   progressPercentage = 0;
-  pagesLeft = "all";
+  pagespagesLeftNumber = "all";
 }
-if (progressPercentage === 100 && pagesLeft != 0) {
+
+//if there are only a few pages pagesLeftNumber display 99% instead of rounding up to 100%
+if (progressPercentage === 100 && pagespagesLeftNumber != 0) {
   progressPercentage = 99;
 }
-st1.addSpacer();
-st2.addSpacer();
-st21.addSpacer();
-const coverPlaceholder = st21.addText(progressPercentage.toString() + "%");
-st23.addSpacer();
-const left = st23.addText(pagesLeft.toString());
-st23.addSpacer();
-st24.addSpacer();
-const left2 = st24.addText("pages left");
-st24.addSpacer();
-left.font = Font.boldSystemFont(12);
-left2.font = Font.systemFont(8);
-coverPlaceholder.textColor = Color.black();
-coverPlaceholder.centerAlignText();
-left.textColor = Color.black();
-left2.textColor = Color.black();
-coverPlaceholder.font = Font.boldSystemFont(13);
-left.centerAlignText();
-st21.addSpacer();
-widget.addSpacer();
 
+//add spacing
+stackCover.addSpacer();
+stackInfo.addSpacer();
+stackProgressPercentage.addSpacer();
+
+//add percentage, pages left number and label to the stacks
+const percentageProgress = stackProgressPercentage.addText(
+  progressPercentage.toString() + "%"
+);
+stackProgressPages.addSpacer();
+const pagesLeftNumber = stackProgressPages.addText(
+  pagespagesLeftNumber.toString()
+);
+stackProgressPages.addSpacer();
+stackProgressPagesLeftLabel.addSpacer();
+const pagesLeftLabel = stackProgressPagesLeftLabel.addText("pages left");
+
+//add spacing
+stackProgressPagesLeftLabel.addSpacer();
+stackProgressPercentage.addSpacer();
+
+//center align cover and pages left number
+percentageProgress.centerAlignText();
+pagesLeftNumber.centerAlignText();
+
+//set color of text and stacks
+if (darkmode === false) {
+  stackProgressPercentage.backgroundColor = statsBackgroundColorLightmode;
+  stackPagesProgressContainer.backgroundColor = statsBackgroundColorLightmode;
+  percentageProgress.textColor = fontColorLightmode;
+  pagesLeftNumber.textColor = fontColorLightmode;
+  pagesLeftLabel.textColor = fontColorLightmode;
+} else {
+  stackProgressPercentage.backgroundColor = statsBackgroundColorDarkmode;
+  stackPagesProgressContainer.backgroundColor = statsBackgroundColorDarkmode;
+  percentageProgress.textColor = fontColorDarkmode;
+  pagesLeftNumber.textColor = fontColorDarkmode;
+  pagesLeftLabel.textColor = fontColorDarkmode;
+}
+
+//font size and weight
+percentageProgress.font = Font.boldSystemFont(13);
+pagesLeftNumber.font = Font.boldSystemFont(12);
+pagesLeftLabel.font = Font.systemFont(8);
+
+//add title and author to stack
+//if no currently reading book, then display message
 try {
-  const title = widget.addText(
+  const title = mainBottom.addText(
     book.data.booksByReadingStateAndProfile[0]["title"]
   );
-  title.centerAlignText();
 
-  const author = widget.addText(
+  const author = mainBottom.addText(
     book.data.booksByReadingStateAndProfile[0].authors[0]["name"]
   );
-  author.centerAlignText();
 
   title.font = Font.boldSystemFont(12);
   author.font = Font.systemFont(11);
 
   //set background and text styles
   if (darkmode === false) {
-    widget.backgroundColor = Color.white();
-    title.textColor = Color.black();
-    author.textColor = Color.black();
+    widget.backgroundColor = backgroundColorLightmode;
+    title.textColor = fontColorLightmode;
+    author.textColor = fontColorLightmode;
   } else {
-    widget.backgroundColor = Color.black();
-    title.textColor = Color.white();
-    author.textColor = Color.white();
+    widget.backgroundColor = backgroundColorDarkmode;
+    title.textColor = fontColorDarkmode;
+    author.textColor = fontColorDarkmode;
   }
 } catch (e) {
   showMessage();
@@ -171,14 +219,14 @@ function writeDataToFile(user, token, result, currentBook, coverImg) {
 //load data from cache (iCloud folder)
 function loadDataFromFile(user) {
   let dir = fm.documentsDirectory();
-  var path = fm.joinPath(
+  let path = fm.joinPath(
     dir,
     persistFolder + "/" + user + "readingProgress" + ".json"
   );
   if (!fm.fileExists(path)) {
     console.log("No file found");
   } else {
-    var jsonString = fm.readString(path);
+    let jsonString = fm.readString(path);
     return JSON.parse(jsonString);
   }
 }
@@ -186,14 +234,14 @@ function loadDataFromFile(user) {
 //load image from cache (iCloud folder)
 function loadImageFromFile(user) {
   let dir = fm.documentsDirectory();
-  var pathImage = fm.joinPath(
+  let pathImage = fm.joinPath(
     dir,
     persistFolder + "/" + user + "ImageReadingProgress" + ".json"
   );
   if (!fm.fileExists(pathImage)) {
     console.log("No file found");
   } else {
-    var image = fm.readImage(pathImage);
+    let image = fm.readImage(pathImage);
     return image;
   }
 }
