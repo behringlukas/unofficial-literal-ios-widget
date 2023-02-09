@@ -79,7 +79,7 @@ For [Currently reading (Size: S)](currentlyReadingWidgetSmall.js) and - [Current
 > - Parameter: username,light
 >   <br>
 
-4. For the Parameter you can use your or any other users Literal username. Instead of light (lightmode) you can use dark (darkmode). <br>Please make sure that there is no space between the two parameters and comma!
+4. For the Parameter you can use your or any other users Literal username. Instead of light (lightmode) you can use dark (darkmode). <br>Please make sure that there is no space between the two parameters and comma! If you don't add any parameters, the user piet (CEO of Literal) and dark are used by default.
 5. This is it! You can change the parameters anytime you want with long pressing the widget and selecting "Edit Widget". You add the same widget/script multiple times and just use different parameters without creating a new script in Scriptable.
    <br>
 
@@ -101,7 +101,7 @@ For [Currently reading with page progress (Size: S)](readingProgressWidgetSmall.
    > - URL: https://literal.club
 
 5. This is it! If you want to use the widget multiple times with different content you need to create a new script in Scriptable and change the parameters there.
-   <br>
+   <br> 
 
 ---
 
