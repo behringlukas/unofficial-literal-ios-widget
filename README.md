@@ -55,8 +55,8 @@ Please also check the [Limits and behaviour of the widgets](#d-limits-and-behavi
   > Displays the latest three book that were marked as "Reading" in Literal. <br>
   > If there are less than three books you're reading, this widget will not show any books.
 
-  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingMExample.png" width="180">
-  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingMExample2.png" width="180">
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingMExample.png" width="250">
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingMExample2.png" width="250">
 
 - [Currently reading with page progress (Size: S)](readingProgressWidgetSmall.js)
 
@@ -94,7 +94,7 @@ For [Currently reading (Size: S)](currentlyReadingWidgetSmall.js) and - [Current
 5. This is it! You can change the parameters anytime you want with long pressing the widget and selecting "Edit Widget". You add the same widget/script multiple times and just use different parameters without creating a new script in Scriptable.
    <br>
 
-> <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/parametersExample.png" width="90">
+> <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/parametersExample.png" width="300">
 
 ---
 
@@ -116,7 +116,7 @@ For [Currently reading with page progress (Size: S)](readingProgressWidgetSmall.
 5. This is it! If you want to use the widget multiple times with different content you need to create a new script in Scriptable and change the parameters there.
    <br>
 
-> <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/usercredentials.png" width="180">
+> <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/usercredentials.png" width="300">
 
 ---
 
