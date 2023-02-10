@@ -46,23 +46,33 @@ Please also check the [Limits and behaviour of the widgets](#d-limits-and-behavi
 - [Currently reading (Size: S)](currentlyReadingWidgetSmall.js)<br>
 
   > Displays the latest book that was marked as "Reading" in Literal. <br>
-  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingSExample.png" width="48">
+
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingSExample.png" width="90">
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingSExample2.png" width="90">
 
 - [Currently reading (Size: M)](currentlyReadingWidgetMedium.js)
 
   > Displays the latest three book that were marked as "Reading" in Literal. <br>
-
   > If there are less than three books you're reading, this widget will not show any books.
+
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingMExample.png" width="90">
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/currentlyReadingMExample2.png" width="90">
 
 - [Currently reading with page progress (Size: S)](readingProgressWidgetSmall.js)
 
   > Displays the latest book that was marked as "Reading" in Literal. Additionally the current page progress in percentage and pages left to read are displayed.<br>
+
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/readingProgressExample.png" width="90">
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/readingProgressExample2.png" width="90">
 
 ### Bb. Lockscreen widgets
 
 - [Page progress of currently reading book (Size: S)](readingProgressLockscreenWidgetSmall.js)
 
   > Displays the current page progress in percentage and pages left to read of the latest book that was marked as "Reading" in Literal on the lockscreen.<br>
+
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/lockscreenExample.png" width="90">
+  > <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/lockscreenExample2.png" width="90">
 
 ## C. How to configure and add to homescreen
 
@@ -84,6 +94,8 @@ For [Currently reading (Size: S)](currentlyReadingWidgetSmall.js) and - [Current
 5. This is it! You can change the parameters anytime you want with long pressing the widget and selecting "Edit Widget". You add the same widget/script multiple times and just use different parameters without creating a new script in Scriptable.
    <br>
 
+> <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/parametersExample.png" width="90">
+
 ---
 
 For [Currently reading with page progress (Size: S)](readingProgressWidgetSmall.js):
@@ -103,6 +115,8 @@ For [Currently reading with page progress (Size: S)](readingProgressWidgetSmall.
 
 5. This is it! If you want to use the widget multiple times with different content you need to create a new script in Scriptable and change the parameters there.
    <br>
+
+> <img src="https://github.com/behringlukas/unofficial-literal-ios-widget/blob/main/docs/images/usercredentials.png" width="90">
 
 ---
 
